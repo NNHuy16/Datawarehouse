@@ -1,0 +1,52 @@
+plugins {
+  id("java")
+  id("io.freefair.lombok") version "8.11"
+  id("application")  // Thêm plugin application
+}
+
+group = "com.example"
+version = "1.0-SNAPSHOT"
+
+repositories {
+  mavenCentral()
+}
+
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+}
+
+dependencies {
+  testImplementation(platform("org.junit:junit-bom:5.10.0"))
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  implementation("org.jdbi:jdbi3-core:3.47.0")
+
+  // Sử dụng một phiên bản MySQL Connector chuẩn
+  implementation("mysql:mysql-connector-java:8.0.32")  // Hoặc thử phiên bản ổn định khác
+
+  implementation("jakarta.activation:jakarta.activation-api:2.1.3")
+  implementation("org.eclipse.angus:jakarta.mail:2.0.3")
+}
+
+tasks.test {
+  useJUnitPlatform()
+}
+
+tasks.jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  manifest {
+    attributes(
+            "Main-Class" : "com.example.server_staging.Main"
+    )
+  }
+  from({
+    files(configurations.runtimeClasspath).flatMap {
+      it.isDirectory() ? it : zipTree(it)
+    }
+  })
+}
+
+//// Cấu hình VM options
+//application {
+//  mainClass = 'com.example.server_staging.Main' // Đảm bảo rằng class chính của bạn là đúng
+//  applicationDefaultJvmArgs = ['-Dfile.encoding=UTF-8'] // Thêm VM options ở đây
+//}
